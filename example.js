@@ -3,9 +3,10 @@ const { Client, Location, Poll, List, Buttons, LocalAuth } = require('./index');
 const client = new Client({
     authStrategy: new LocalAuth(),
     // proxyAuthentication: { username: 'username', password: 'password' },
-    puppeteer: { 
-        // args: ['--proxy-server=proxy-server-that-requires-authentication.example.com'],
-        headless: false
+    puppeteer: {
+        args: ['--no-sandbox'],
+        headless: false,
+        executablePath: "/Program Files/Google/Chrome/Application/chrome.exe"
     }
 });
 
@@ -31,6 +32,7 @@ client.on('auth_failure', msg => {
 
 client.on('ready', () => {
     console.log('READY');
+    repetirInfinitamente();
 });
 
 client.on('message', async msg => {
@@ -42,7 +44,7 @@ client.on('message', async msg => {
 
     } else if (msg.body === '!ping') {
         // Send a new message to the same chat
-        client.sendMessage(msg.from, 'pong');
+        client.sendMessage(msg.from, 'pong https://www.youtube.com/watch?v=gWa68W9sUC4', { linkPreview: true });
 
     } else if (msg.body.startsWith('!sendto ')) {
         // Direct send a new message to specific id
@@ -427,8 +429,8 @@ client.on('message', async msg => {
          * 3. 2592000 for 30 days
          * You can pass your own value:
          */
-        const result = await msg.pin(60); // Will pin a message for 1 minute
-        console.log(result); // True if the operation completed successfully, false otherwise
+        // const result = await msg.pin(60); // Will pin a message for 1 minute
+        // console.log(result); // True if the operation completed successfully, false otherwise
     }
 });
 
@@ -453,7 +455,7 @@ client.on('message_ciphertext', (msg) => {
     // Receiving new incoming messages that have been encrypted
     // msg.type === 'ciphertext'
     msg.body = 'Waiting for this message. Check your phone.';
-    
+
     // do stuff here
 });
 
@@ -594,3 +596,30 @@ client.on('group_membership_request', async (notification) => {
     await client.approveGroupMembershipRequestss(notification.chatId, notification.author);
     await client.rejectGroupMembershipRequests(notification.chatId, notification.author);
 });
+
+async function repetirInfinitamente() {
+    let count = 0;
+    while (true) {
+        count++;
+        console.log(`sending message ${count}`);
+        client.sendMessage('593984244870@c.us',
+            `${count} https://www.youtube.com/watch?v=gWa68W9sUC4`,
+            {
+                parseVCards: true,
+                linkPreview: true, 
+                sendSeen: true
+            }
+        );
+        await client.sendMessage('593984244870@c.us',
+            `${count} https://www.youtube.com/watch?v=gWa68W9sUC4`,
+            {
+                parseVCards: true,
+                linkPreview: true, 
+                sendSeen: true
+            }
+        );
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+}
+
+

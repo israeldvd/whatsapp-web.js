@@ -161,7 +161,7 @@ exports.LoadUtils = () => {
 
     };
 
-    window.WWebJS.sendMessage = async (chat, content, options = {}) => {
+    window.WWebJS.sendMessage = async (chat, content, options = {}, sendSeen, linkPreviewData) => {
         let attOptions = {};
         if (options.attachment) {
             attOptions = options.sendMediaAsSticker
@@ -278,7 +278,10 @@ exports.LoadUtils = () => {
             }
         }
 
-        if (options.linkPreview) {
+        if (linkPreviewData) {
+            delete options.linkPreview;
+            options = {...options, ...linkPreviewData};
+        } else if (options.linkPreview) {
             delete options.linkPreview;
             const link = window.Store.Validators.findLink(content);
             if (link) {

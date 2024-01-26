@@ -913,7 +913,25 @@ class Client extends EventEmitter {
             );
         }
 
-        const newMessage = await this.pupPage.evaluate(async (chatId, message, options, sendSeen) => {
+        let linkPreviewData = null;
+        if (internalOptions.linkPreview) {
+            linkPreviewData = await this.pupPage.evaluate(async (content) => {
+                const link = window.Store.Validators.findLink(content);
+                if (link) {
+                    let preview = await window.Store.LinkPreview.getLinkPreview(link);
+                    if (preview && preview.data) {
+                        preview = preview.data;
+                        preview.preview = true;
+                        preview.subtype = 'url';
+                        return preview;
+                    }
+                }
+
+                return null;
+            }, content);
+        }
+
+        const newMessage = await this.pupPage.evaluate(async (chatId, message, options, sendSeen, linkPreviewData) => {
             const chatWid = window.Store.WidFactory.createWid(chatId);
             const chat = await window.Store.Chat.find(chatWid);
 
@@ -922,9 +940,9 @@ class Client extends EventEmitter {
                 await window.WWebJS.sendSeen(chatId);
             }
 
-            const msg = await window.WWebJS.sendMessage(chat, message, options, sendSeen);
-            return msg.serialize(); //window.WWebJS.getMessageModel(msg);
-        }, chatId, content, internalOptions, sendSeen);
+            const msg = await window.WWebJS.sendMessage(chat, message, options, sendSeen, linkPreviewData);
+            return window.WWebJS.getMessageModel(msg);
+        }, chatId, content, internalOptions, sendSeen, linkPreviewData);
 
         return new Message(this, newMessage);
     }
