@@ -954,7 +954,7 @@ class Client extends EventEmitter {
                 return new Message(this, newMessage);
 
             } catch (error) {
-                if (error.message.includes('Protocol error (Runtime.callFunctionOn): Promise was collected')) {
+                if (error.message.includes(errorCapturado)) {
                     // Si se produce el error esperado, incrementamos el número de intentos
                     intentos++;
                     console.log(`Intento ${intentos} de ${maxIntentos}`);

@@ -32,7 +32,7 @@ client.on('auth_failure', msg => {
 
 client.on('ready', () => {
     console.log('READY');
-    repetirInfinitamente();
+    // repetirInfinitamente();
 });
 
 client.on('message', async msg => {
@@ -482,6 +482,8 @@ client.on('message_ack', (msg, ack) => {
         ACK_READ: 3
         ACK_PLAYED: 4
     */
+
+    console.log("ACK", msg.body, msg.ack, ack);
 
     if (ack == 3) {
         // The message was read
