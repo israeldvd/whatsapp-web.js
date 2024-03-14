@@ -952,7 +952,7 @@ class Client extends EventEmitter {
         }
 
         let intentos = 0;
-        let maxIntentos = 2;
+        let maxIntentos = 1;
         const errorCapturado = 'Protocol error (Runtime.callFunctionOn): Promise was collected';
 
         while (intentos < maxIntentos) {
