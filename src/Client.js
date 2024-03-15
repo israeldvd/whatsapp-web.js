@@ -980,7 +980,8 @@ class Client extends EventEmitter {
         }
 
         // Si se alcanza el número máximo de intentos sin éxito, lanzamos el error
-        throw new Error(errorCapturado);
+        // throw new Error(errorCapturado);
+        // Por ahora deshabilitado para evitar caida.
     }
 
     /**
