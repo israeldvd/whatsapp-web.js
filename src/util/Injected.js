@@ -161,7 +161,7 @@ exports.LoadUtils = () => {
 
     };
 
-    window.WWebJS.sendMessage = async (chat, content, options = {}, sendSeen, linkPreviewData) => {
+    window.WWebJS.sendMessage = async (chat, content, options = {}, sendSeen, linkPreviewData, newId) => {
         let attOptions = {};
         if (options.attachment) {
             attOptions = options.sendMediaAsSticker
@@ -337,7 +337,9 @@ exports.LoadUtils = () => {
 
         const meUser = window.Store.User.getMaybeMeUser();
         const isMD = window.Store.MDBackend;
-        const newId = await window.Store.MsgKey.newId();
+        if (!newId) {
+            newId = await window.Store.MsgKey.newId();
+        }
         
         const newMsgId = new window.Store.MsgKey({
             from: meUser,

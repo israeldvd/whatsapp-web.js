@@ -136,7 +136,7 @@ class Client extends EventEmitter {
                 return error;
             };
         });
-        
+
         await page.goto(WhatsWebURL, {
             waitUntil: 'load',
             timeout: 0,
@@ -952,19 +952,23 @@ class Client extends EventEmitter {
         }
 
         let intentos = 0;
-        let maxIntentos = 1;
+        let maxIntentos = 2;
         const errorCapturado = 'Protocol error (Runtime.callFunctionOn): Promise was collected';
 
         while (intentos < maxIntentos) {
+            const newId = await this.pupPage.evaluate(async () => {
+                return await window.Store.MsgKey.newId();
+            });
+
             try {
-                const newMessage = await this.pupPage.evaluate(async (chatId, message, options, sendSeen, linkPreviewData) => {
+                const newMessage = await this.pupPage.evaluate(async (chatId, message, options, sendSeen, linkPreviewData, newId) => {
                     const chatWid = window.Store.WidFactory.createWid(chatId);
-                    const chat = await window.Store.Chat.find(chatWid);            
-        
-                    const msg = await window.WWebJS.sendMessage(chat, message, options, sendSeen, linkPreviewData);
+                    const chat = await window.Store.Chat.find(chatWid);
+
+                    const msg = await window.WWebJS.sendMessage(chat, message, options, sendSeen, linkPreviewData, newId);
                     return window.WWebJS.getMessageModel(msg);
-                }, chatId, content, internalOptions, sendSeen, linkPreviewData);
-        
+                }, chatId, content, internalOptions, sendSeen, linkPreviewData, newId);
+
                 return new Message(this, newMessage);
 
             } catch (error) {
@@ -972,6 +976,19 @@ class Client extends EventEmitter {
                     // Si se produce el error esperado, incrementamos el número de intentos
                     intentos++;
                     console.log(`Intento ${intentos} de ${maxIntentos}`);
+
+                    // Verificar si el mensaje ya fue enviado y recuperar su contenido.
+                    await (new Promise((resolve) => {
+                        setTimeout(resolve, 2000);
+                    }));
+
+                    const chat = await this.getChatById(chatId);
+                    const messages = await chat.fetchMessages({ limit: 5, fromMe: true });
+                    const msg = messages.find((m) => m.id.id == newId);
+                    if (msg) {
+                        console.log('Mensaje enviado, no se hará ningún reintento.', msg);
+                        return msg;
+                    }
                 } else {
                     // Si se produce otro error, lo lanzamos
                     throw error;
@@ -980,8 +997,7 @@ class Client extends EventEmitter {
         }
 
         // Si se alcanza el número máximo de intentos sin éxito, lanzamos el error
-        // throw new Error(errorCapturado);
-        // Por ahora deshabilitado para evitar caida.
+        throw new Error(errorCapturado);
     }
 
     /**

@@ -32,7 +32,7 @@ client.on('auth_failure', msg => {
 
 client.on('ready', () => {
     console.log('READY');
-    // repetirInfinitamente();
+    repetirInfinitamente();
 });
 
 client.on('message', async msg => {
@@ -604,16 +604,8 @@ async function repetirInfinitamente() {
     while (true) {
         count++;
         console.log(`sending message ${count}`);
-        client.sendMessage('593984244870@c.us',
-            `${count} https://www.youtube.com/watch?v=gWa68W9sUC4`,
-            {
-                parseVCards: true,
-                linkPreview: true, 
-                sendSeen: true
-            }
-        );
-        await client.sendMessage('593984244870@c.us',
-            `${count} https://www.youtube.com/watch?v=gWa68W9sUC4`,
+        client.sendMessage('593958993630@c.us',
+            `A ${count} Prueba de mensaje`,
             {
                 parseVCards: true,
                 linkPreview: true, 
